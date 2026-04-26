@@ -122,17 +122,21 @@ pub fn as_message_event(
     }
 }
 
-/// Checks if a message starts with a user_id mention
+/// Checks if a message starts with a `user_id` mention
 /// Automatically handles @ in front of the name
 pub fn msg_starts_with_mention(user_id: &UserId, display_name: Option<String>, msg: &str) -> bool {
     let localpart = user_id.localpart().to_lowercase();
     // Catch "@botname ..." messages
-    let msg = msg.replace(&format!("@{}", localpart), &localpart);
+    let msg = msg.replace(&format!("@{localpart}"), &localpart);
     let msg = msg.as_str().to_lowercase();
 
-    let matches_localpart = msg.starts_with(&localpart);
+    let matches_localpart =
+        Regex::is_match(&Regex::new(&format!("^{localpart}\\W")).unwrap(), &msg);
     let matches_display_name = if let Some(display_name) = display_name {
-        msg.starts_with(&display_name.to_lowercase())
+        Regex::is_match(
+            &Regex::new(&format!("^{}\\W", display_name.to_lowercase())).unwrap(),
+            &msg,
+        )
     } else {
         false
     };
