@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::sync::LazyLock;
 
-use crate::{Config, News, Project, Section, Pings};
+use crate::{Config, News, Pings, Project, Section};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct RenderNews {
