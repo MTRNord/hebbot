@@ -55,6 +55,6 @@ impl Pings {
         for (i, score) in sorted_pings[0..10].iter().enumerate() {
             table = format!("{table}|{}|{}|{}|\n", i + 1, score.server, score.median);
         }
-        return table;
+        table
     }
 }

@@ -274,7 +274,7 @@ pub fn render(
 
     // Fetch pings
     let ping_table = match config.ping_room_id {
-        Some(ref room_id) => Pings::get(&room_id),
+        Some(ref room_id) => Pings::get(room_id),
         None => "".to_string(),
     };
 
