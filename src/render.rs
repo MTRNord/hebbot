@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::sync::LazyLock;
 
-use crate::{Config, News, Project, Section};
+use crate::{Config, News, Project, Section, Pings};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct RenderNews {
@@ -272,6 +272,12 @@ pub fn render(
         sorted_render_sections.insert(render_section.section.clone(), render_section.clone());
     }
 
+    // Fetch pings
+    let ping_table = match config.ping_room_id {
+        Some(ref room_id) => Pings::get(&room_id),
+        None => "".to_string(),
+    };
+
     // Create summary notes for the admin room
     if not_assigned != 0 {
         let note = format!(
@@ -301,6 +307,7 @@ pub fn render(
             projects => project_names,
             config => config,
             editor => editor.name(),
+            ping_table => ping_table,
         })?;
 
     Ok(RenderResult {
