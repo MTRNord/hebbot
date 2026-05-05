@@ -35,7 +35,7 @@ struct Score {
 pub struct Pings {}
 
 impl Pings {
-    fn parse_pings(ping_data: Response) -> Vec<Score> {
+    fn sort_pings(ping_data: Response) -> Vec<Score> {
         let mut sorted_pings: Vec<Score> = ping_data
             .pings
             .iter()
@@ -48,6 +48,14 @@ impl Pings {
         sorted_pings
     }
 
+    fn render_table(sorted_pings: Vec<Score>) -> String {
+        let mut table = String::new();
+        for (i, score) in sorted_pings.iter().take(10).enumerate() {
+            table = format!("{table}|{}|{}|{}|\n", i + 1, score.server, score.median);
+        }
+        table
+    }
+
     pub fn get(room_id: &str) -> String {
         let ping_data: Response = reqwest::blocking::get(format!(
             "https://maubot.xyz/_matrix/maubot/plugin/pingstat/{room_id}/stats.json"
@@ -56,12 +64,8 @@ impl Pings {
         .json()
         .expect("request should be parseable into our response format");
 
-        let sorted_pings = Pings::parse_pings(ping_data);
-        let mut table = String::from("");
-        for (i, score) in sorted_pings[0..10].iter().enumerate() {
-            table = format!("{table}|{}|{}|{}|\n", i + 1, score.server, score.median);
-        }
-        table
+        let sorted_pings = Pings::sort_pings(ping_data);
+        Pings::render_table(sorted_pings)
     }
 }
 
@@ -104,7 +108,7 @@ mod tests {
     fn ensure_sorted() {
         let ping_data = test_data();
 
-        let sorted_pings = Pings::parse_pings(ping_data);
+        let sorted_pings = Pings::sort_pings(ping_data);
         assert_eq!(sorted_pings.len(), 2);
         assert!(sorted_pings[0].median <= sorted_pings[1].median);
     }
@@ -113,11 +117,9 @@ mod tests {
     fn ensure_table_format() {
         let ping_data = test_data();
 
-        let sorted_pings = Pings::parse_pings(ping_data);
-        let mut table = String::from("");
-        for (i, score) in sorted_pings[0..2].iter().enumerate() {
-            table = format!("{table}|{}|{}|{}|\n", i + 1, score.server, score.median);
-        }
-        assert_eq!(table, "|1|server2|5|\n|2|server1|10|\n");
+        let sorted_pings = Pings::sort_pings(ping_data);
+        let table = Pings::render_table(sorted_pings);
+        let expected_table = "|1|server2|5|\n|2|server1|10|\n";
+        assert_eq!(table, expected_table);
     }
 }
