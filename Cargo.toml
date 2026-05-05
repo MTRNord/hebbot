@@ -21,7 +21,7 @@ async-process = "2.2"
 minijinja = { version = "2.0.1", features = ["builtins", "debug", "deserialization", "json", "std_collections"] }
 minijinja-contrib = { version = "2.0.1", features = ["datetime", "rand"] }
 time = "0.3.36"
-reqwest = { version = "0.13.2", features = ["blocking"] }
+reqwest = { version = "0.13.2", features = ["blocking", "json"] }
 
 [dev-dependencies]
 assert_matches2 = "0.1.2"
