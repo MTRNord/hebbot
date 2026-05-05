@@ -274,7 +274,13 @@ pub fn render(
 
     // Fetch pings
     let ping_table = match config.ping_room_id {
-        Some(ref room_id) => Pings::get(room_id),
+        Some(ref room_id) => match Pings::get(room_id) {
+            Ok(ping_table) => ping_table,
+            Err(e) => {
+                error!("Failed to fetch pings for room {}: {}", room_id, e);
+                String::new()
+            }
+        },
         None => String::new(),
     };
 

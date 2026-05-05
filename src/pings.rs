@@ -56,16 +56,14 @@ impl Pings {
         table
     }
 
-    pub fn get(room_id: &str) -> String {
+    pub fn get(room_id: &str) -> Result<String, Box<dyn std::error::Error>> {
         let ping_data: Response = reqwest::blocking::get(format!(
             "https://maubot.xyz/_matrix/maubot/plugin/pingstat/{room_id}/stats.json"
-        ))
-        .expect("request should succeed")
-        .json()
-        .expect("request should be parseable into our response format");
+        ))?
+        .json()?;
 
         let sorted_pings = Pings::sort_pings(ping_data);
-        Pings::render_table(sorted_pings)
+        Ok(Pings::render_table(sorted_pings))
     }
 }
 
@@ -121,5 +119,13 @@ mod tests {
         let table = Pings::render_table(sorted_pings);
         let expected_table = "|1|server2|5|\n|2|server1|10|\n";
         assert_eq!(table, expected_table);
+    }
+
+    #[test]
+    fn ensure_fetch_works() {
+        let result = Pings::get("!ping12Z19lU3TzHS4slLsUNPx-I7MZKyneYRUlO7voU");
+        assert!(result.is_ok());
+        let table = result.unwrap();
+        assert!(!table.is_empty());
     }
 }
