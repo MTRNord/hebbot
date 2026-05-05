@@ -70,9 +70,8 @@ impl Pings {
 mod tests {
     use super::*;
 
-    #[test]
-    fn ensure_sorted() {
-        let ping_data = Response {
+    fn test_data() -> Response {
+        Response {
             disclaimer: String::new(),
             pings: HashMap::from([
                 (
@@ -98,10 +97,27 @@ mod tests {
             ]),
             mean: 0f32,
             pongservers: Vec::new(),
-        };
+        }
+    }
+
+    #[test]
+    fn ensure_sorted() {
+        let ping_data = test_data();
 
         let sorted_pings = Pings::parse_pings(ping_data);
         assert_eq!(sorted_pings.len(), 2);
         assert!(sorted_pings[0].median <= sorted_pings[1].median);
+    }
+
+    #[test]
+    fn ensure_table_format() {
+        let ping_data = test_data();
+
+        let sorted_pings = Pings::parse_pings(ping_data);
+        let mut table = String::from("");
+        for (i, score) in sorted_pings[0..2].iter().enumerate() {
+            table = format!("{table}|{}|{}|{}|\n", i + 1, score.server, score.median);
+        }
+        assert_eq!(table, "|1|server2|5|\n|2|server1|10|\n");
     }
 }
