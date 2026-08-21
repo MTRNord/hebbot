@@ -10,6 +10,9 @@ use crate::{Error, News};
 
 pub struct NewsStore {
     news_map: HashMap<OwnedEventId, News>,
+    // Next `post_<id>` to hand out. Derived from stored data on read(),
+    // only reset by clear_news() (not by rendering).
+    next_id: u32,
 }
 
 impl NewsStore {
@@ -18,7 +21,7 @@ impl NewsStore {
         let path = Self::get_path();
         debug!("Trying to read stored news file from path: {:?}", path);
 
-        let news_map = if let Ok(mut file) = File::open(path) {
+        let news_map: HashMap<OwnedEventId, News> = if let Ok(mut file) = File::open(path) {
             let mut data = String::new();
             file.read_to_string(&mut data)
                 .expect("Unable to read news store file");
@@ -28,10 +31,15 @@ impl NewsStore {
             HashMap::new()
         };
 
-        Self { news_map }
+        let next_id = news_map.values().map(|n| n.id()).max().unwrap_or(0) + 1;
+
+        Self { news_map, next_id }
     }
 
     pub fn add_news(&mut self, news: News) {
+        news.set_id(self.next_id);
+        self.next_id += 1;
+
         debug!("Store {:#?}", &news);
 
         self.news_map.insert(news.event_id.clone(), news);
@@ -71,6 +79,11 @@ impl NewsStore {
             .find(|&news| news.relates_to_file_id(file_id))
     }
 
+    /// Get news by using its short sequential `post_<id>` reference
+    pub fn news_by_numeric_id(&self, id: u32) -> Option<&News> {
+        self.news_map.values().find(|&news| news.id() == id)
+    }
+
     pub fn find_related_news(&self, reporter_id: &str, timestamp: &DateTime<Utc>) -> Option<&News> {
         let mut shortest_time_diff = None;
         let mut related_news = None;
@@ -99,9 +112,10 @@ impl NewsStore {
         related_news
     }
 
-    /// Wipes all news entries
+    /// Wipes all news entries and resets the `post_<id>` numbering
     pub fn clear_news(&mut self) {
         self.news_map.clear();
+        self.next_id = 1;
         self.write_data();
     }
 
