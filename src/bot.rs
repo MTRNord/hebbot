@@ -504,8 +504,7 @@ impl Bot {
                             })
                         {
                             if !sender_is_editor
-                                && (reaction_sender.user_id() != related_event.sender
-                                    && self.config.restrict_notice)
+                                && reaction_sender.user_id() != related_event.sender
                             {
                                 return;
                             }
@@ -556,6 +555,11 @@ impl Bot {
                                 )
                             })
                         {
+                            if !sender_is_editor
+                                && reaction_sender.user_id() != related_event.sender
+                            {
+                                return;
+                            }
                             if let MediaSource::Plain(mxc_uri) = &video.source {
                                 news.add_video(
                                     reaction_event_id.to_owned(),
