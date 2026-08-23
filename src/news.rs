@@ -15,8 +15,6 @@ pub struct News {
     pub reporter_id: OwnedUserId,
     pub reporter_display_name: String,
     pub timestamp: DateTime<Utc>,
-    // Short sequential id (`post_<id>`), assigned by `NewsStore::add_news`.
-    // Only resets on `!clear`, so it stays stable across renders.
     #[serde(default)]
     id: RefCell<u32>,
     message: RefCell<String>,

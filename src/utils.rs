@@ -282,7 +282,9 @@ mod tests {
     #[test]
     fn parse_post_ref_works() {
         assert_eq!(parse_post_ref("post_3"), Some(3));
+        assert_eq!(parse_post_ref("post_42"), Some(42));
         assert_eq!(parse_post_ref("post_0"), Some(0));
+        assert_eq!(parse_post_ref("post_-3"), None);
         assert_eq!(parse_post_ref("post_"), None);
         assert_eq!(parse_post_ref("post_abc"), None);
         assert_eq!(parse_post_ref("👍"), None);
