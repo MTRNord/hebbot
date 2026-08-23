@@ -507,7 +507,7 @@ impl Bot {
                                     link
                                 ))
                             } else {
-                                None
+                                Some(format!("❌ Unable to link encrypted media [{}].", link))
                             }
                         } else {
                             Some(format!(
@@ -567,7 +567,7 @@ impl Bot {
                                     link
                                 ))
                             } else {
-                                None
+                                Some(format!("❌ Unable to link encrypted media [{}].", link))
                             }
                         } else {
                             Some(format!(
