@@ -1108,11 +1108,7 @@ impl Bot {
             let message = news.message();
 
             // Save it in message store (assigns its post_<id>)
-            let post_id = {
-                let mut news_store = self.news_store.lock().unwrap();
-                news_store.add_news(news);
-                news_store.news_by_message_id(&event_id).unwrap().id()
-            };
+            let post_id = self.news_store.lock().unwrap().add_news(news);
 
             let msg = format!(
                 "✅ {} submitted a news entry as post_{}. [{}]",
