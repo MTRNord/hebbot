@@ -394,22 +394,7 @@ impl Bot {
                 .into();
             let link = self.message_link(related_event_id);
 
-            // Fallback for linking an editor-uploaded image/video to a specific
-            // news entry, for when a reply relation isn't available (eg. the
-            // editor's client can't reply-with-media) and the uploader isn't the
-            // submitter (so the sender/timestamp heuristic can't match either):
-            // react on the image/video with "post_<id>", the entry's short id
-            // from its own confirmation message.
-            if let Some(post_id) = utils::parse_post_ref(reaction_emoji) {
-                Some(self.link_media_by_post_ref(
-                    sender_is_editor,
-                    related_event,
-                    reaction_event_id,
-                    related_event_id,
-                    post_id,
-                    &link,
-                ))
-            } else if reaction_type == ReactionType::None {
+            if reaction_type == ReactionType::None {
                 debug!(
                     "Ignoring emoji reaction, doesn't match any known emoji ({:?})",
                     reaction_emoji
@@ -531,6 +516,14 @@ impl Bot {
                             ))
                         }
                     }
+                    ReactionType::PostRef(post_id) => Some(self.link_media_by_post_ref(
+                        sender_is_editor,
+                        related_event,
+                        reaction_event_id,
+                        related_event_id,
+                        post_id,
+                        &link,
+                    )),
                     _ => Some(format!(
                         "❌ Invalid reaction emoji {} by {} for message type image [{}].",
                         reaction_emoji,
@@ -583,6 +576,14 @@ impl Bot {
                             ))
                         }
                     }
+                    ReactionType::PostRef(post_id) => Some(self.link_media_by_post_ref(
+                        sender_is_editor,
+                        related_event,
+                        reaction_event_id,
+                        related_event_id,
+                        post_id,
+                        &link,
+                    )),
                     _ => Some(format!(
                         "❌ Invalid reaction emoji by {} for message type video [{}].",
                         reaction_sender.user_id(),
@@ -846,6 +847,9 @@ impl Bot {
                 ReactionType::Project(project) => project.unwrap().html_details(),
                 ReactionType::None => format!("❌ Unable to find details for ”{}”.", term),
                 ReactionType::Notice => format!("{} is configured as notice emoji", term),
+                ReactionType::PostRef(id) => {
+                    format!("post_{} links media to the news entry with that id", id)
+                }
             }
         };
 
