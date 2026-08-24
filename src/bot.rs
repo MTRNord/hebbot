@@ -489,7 +489,8 @@ impl Bot {
                             })
                         {
                             if !sender_is_editor
-                                && reaction_sender.user_id() != related_event.sender
+                                && (reaction_sender.user_id() != related_event.sender
+                                    && self.config.restrict_notice)
                             {
                                 return;
                             }
@@ -549,7 +550,8 @@ impl Bot {
                             })
                         {
                             if !sender_is_editor
-                                && reaction_sender.user_id() != related_event.sender
+                                && (reaction_sender.user_id() != related_event.sender
+                                    && self.config.restrict_notice)
                             {
                                 return;
                             }
